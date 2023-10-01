@@ -1,0 +1,57 @@
+# For the SHIP table
+CREATE TABLE ship (
+ imo int NOT NULL,
+    ship_type int NOT NULL,
+    dim_a int NOT NULL,
+    dim_b int NOT NULL,
+    name varchar(20) NOT NULL,
+    PRIMARY KEY (imo)
+);
+INSERT INTO ship VALUES 
+(0, 1, 143, 74, "The Ultimate Ship"),
+(1, 1, 188, 88, "The Amazing Ship"),
+(2, 1, 188, 88, "The Graceful Ship"),
+(3, 1, 189, 88, "The Speedy Ship"),
+(4, 1, 194, 82, "Most Amazing Ship");
+
+# For the PORT table
+CREATE TABLE port (
+    port_code int NOT NULL,
+ lat int NOT NULL,
+    lon int NOT NULL,
+    port_name varchar(20) NOT NULL,
+    geohash int NOT NULL,
+    PRIMARY KEY (port_name)
+);
+INSERT INTO port VALUES 
+(51, 13.461256, 144.670042, "GUAM", 5217),
+(115, 26.2, 127.65, "NAHA", 4660),
+(211, 29.933, 121.833, "ZHOUSHAN", 4564);
+
+# For the SHIP_PORT_EFFICIENCY table
+CREATE TABLE ship_port_efficiency (
+ imo int NOT NULL,
+    port_name varchar(20) NOT NULL,
+    efficiency float NOT NULL,
+    CONSTRAINT ship_port_pk PRIMARY KEY (imo, port_name),
+    FOREIGN KEY (imo) REFERENCES ship (imo),
+    FOREIGN KEY (port_name) REFERENCES port (port_name)
+);
+INSERT INTO ship_port_efficiency VALUES 
+(0, "ZHOUSHAN", 0.000406067),
+(4, "ZHOUSHAN", 0.0012386),
+(0, "GUAM", 0.009117);
+
+# For the PORT_DISTANCE table
+CREATE TABLE port_distance (
+ port_1_name varchar(20) NOT NULL,
+    port_2_name varchar(20) NOT NULL,
+    route_distance float NOT NULL,
+    CONSTRAINT port_dist_pk PRIMARY KEY (port_1_name, port_2_name),
+    FOREIGN KEY (port_1_name) REFERENCES port (port_name),
+    FOREIGN KEY (port_2_name) REFERENCES port (port_name)
+);
+INSERT INTO port_distance VALUES 
+("GUAM", "NAHA", 16907.252),
+("GUAM", "ZHOUSHAN", 16908.402),
+("NAHA", "ZHOUSHAN", 612.215);
