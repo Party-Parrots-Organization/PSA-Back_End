@@ -1,6 +1,7 @@
 Flask==2.3.3
 Flask-Cors==4.0.0
 Flask-SQLAlchemy==3.0.5
+geohash-tools==0.2.0
 scikit-learn==1.3.0
 mysql-connector-python==8.1.0
 numpy==1.25.2

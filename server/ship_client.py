@@ -25,7 +25,6 @@ def get_all_ships():
     result = json.dumps([{"imo": ship.imo, "ship_type": ship.ship_type, "dim_a": ship.dim_a, "dim_b": ship.dim_b} for ship in ships])
 
     # Commit the transaction and close the session
-    session.commit()
     session.close()
     return result
 
@@ -40,5 +39,6 @@ def get_ship_by_imo(imo):
         "dim_b": ship.dim_b
     })
 
-print(get_ship_by_imo(0))
+ship = json.loads(get_ship_by_imo(0))
 print(get_all_ships())
+print(ship.get("ship_type"))
