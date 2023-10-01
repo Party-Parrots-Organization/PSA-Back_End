@@ -17,12 +17,13 @@ class Ship(Base):
     ship_type = Column(Integer, primary_key=False)
     dim_a = Column(Integer, primary_key=False)
     dim_b = Column(Integer, primary_key=False)
+    name = Column(String, primary_key=False)
 
 def get_all_ships():
     Session = sessionmaker(bind=engine)
     session = Session()
     ships = session.query(Ship).all()
-    result = json.dumps([{"imo": ship.imo, "ship_type": ship.ship_type, "dim_a": ship.dim_a, "dim_b": ship.dim_b} for ship in ships])
+    result = json.dumps([{"imo": ship.imo, "ship_type": ship.ship_type, "dim_a": ship.dim_a, "dim_b": ship.dim_b, "ship_name": ship.name} for ship in ships])
 
     # Commit the transaction and close the session
     session.close()
@@ -36,7 +37,8 @@ def get_ship_by_imo(imo):
         "imo": ship.imo,
         "ship_type": ship.ship_type,
         "dim_a": ship.dim_a,
-        "dim_b": ship.dim_b
+        "dim_b": ship.dim_b,
+        "ship_name": ship.name
     })
 
 ship = json.loads(get_ship_by_imo(0))

@@ -11,6 +11,7 @@ import ship_port_efficiency_client
 import helper_functions
 import port_distance_client
 from datetime import datetime, timedelta
+from flask_cors import CORS
 
 def calculate_final_datetime(initial_datetime, days):
     # Parse the initial datetime string to a datetime object
@@ -26,6 +27,7 @@ print("scikit-learn version:", sklearn.__version__)
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
+CORS(app, origins="*")
 
 def get_eta_between_ports(origin_port_name, destination_port_name, ship_imo):
     # Get ship details
