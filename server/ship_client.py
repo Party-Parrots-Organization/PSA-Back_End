@@ -18,13 +18,6 @@ class Ship(Base):
     dim_a = Column(Integer, primary_key=False)
     dim_b = Column(Integer, primary_key=False)
 
-class Port(Base):
-    __tablename__ = 'port'
-    port_code = Column(Integer, primary_key=True)
-    lat = Column(Float, primary_key=False)
-    lon = Column(Float, primary_key=False)
-    port_name = Column(String, primary_key=False)
-
 def get_all_ships():
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -47,16 +40,5 @@ def get_ship_by_imo(imo):
         "dim_b": ship.dim_b
     })
 
-def get_all_ports():
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    ports = session.query(Port).all()
-    result = json.dumps([{"port_code": port.port_code, "lat": port.lat, "lon": port.lon, "port_name": port.port_name} for port in ports])
-    # Commit the transaction and close the session
-    session.commit()
-    session.close()
-    return result
-
 print(get_ship_by_imo(0))
-print(get_all_ports())
 print(get_all_ships())
