@@ -5,8 +5,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+import os
 
-engine = create_engine('mysql+mysqlconnector://root:f42hoWXB0@localhost:3306/game')
+load_dotenv()
+db_url = os.getenv('DB_URL')
+engine = create_engine(db_url)
 
 # Create a base class for declarative models
 Base = declarative_base()
