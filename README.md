@@ -20,3 +20,14 @@ Flask, Tomorow.io API for weather forecasting
 
 ## AI Technologies
 Random Forest Regression, SkLearn,  Pandas, NumPy
+
+# Setup and Installation
+Clone our frontend and backend repositories onto your local machine.
+
+## Database
+1. Seed the SQL database using the provided script.
+
+## Server (Flask)
+1. Enter the server directory using the cd command.
+2. Enter this command: pip install -r requirements.txt to install dependencies
+3. To run the server: python -m flask run
