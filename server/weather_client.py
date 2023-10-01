@@ -56,6 +56,7 @@ def get_weather_severity(weather_code):
 def get_weather(datetime_str, lat, lon):
     print("IN WEATHER CLIENT")
     print("values", datetime_str, lat, lon)
+    datetime_str = "2023-10-01 14:30:00"
     try:
         # Get the nearest point
         lat, lon = get_nearest_valid_point(lat, lon)
@@ -73,7 +74,7 @@ def get_weather(datetime_str, lat, lon):
         base_url = "https://api.tomorrow.io/v4/weather/forecast"
         
         location = f"{lat:.4f},{lon:.4f}"
-        api_key = "v3kSMKP59Eq5aIgpG8KCtZ8t1Z6vjOGA"
+        api_key = "9vtqa6pt0AJ8T5w9R1Ax92HT0LPKyadp"
 
         # Construct the full URL with query parameters
         url = f"{base_url}?location={location}&apikey={api_key}"
@@ -110,4 +111,5 @@ def get_weather(datetime_str, lat, lon):
 
 # print(get_weather("2023-10-01 14:30:00", 42.3478, -71.0466))
 print(get_weather("2023-10-01 14:30:00", 30.0, 122.0))
+print(get_weather("2023-10-03 15:40:10", 30.0, 122.0))
 # 2023-10-12 15:40:10
