@@ -29,7 +29,7 @@ Clone our frontend and backend repositories onto your local machine. This is the
 ## Setting up the environment
 1. Create a file called .env
 2. Enter this line, replacing it with your own values:
-DB_URL="mysql+mysqlconnector://<username>:<password>@localhost:3306/<schema_name>"
+DB_URL="mysql+mysqlconnector://{username}:{password}@localhost:3306/{schema_name}"
 
 ## Database
 1. Seed the SQL database using the provided script.
