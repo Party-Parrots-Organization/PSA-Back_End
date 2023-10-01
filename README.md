@@ -22,7 +22,7 @@ Flask, Tomorow.io API for weather forecasting
 Random Forest Regression, SkLearn,  Pandas, NumPy
 
 # Setup and Installation
-Clone our frontend and backend repositories onto your local machine.
+Clone our frontend and backend repositories onto your local machine. This is the backend repository.
 
 ## Database
 1. Seed the SQL database using the provided script.
