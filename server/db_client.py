@@ -1,4 +1,5 @@
 import os
+import json
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float
@@ -28,42 +29,34 @@ def get_all_ships():
     Session = sessionmaker(bind=engine)
     session = Session()
     ships = session.query(Ship).all()
-    result = []
-
-    # Print the retrieved data
-    for ship in ships:
-        ship_json = {
-            "imo": ship.imo,
-            "ship_type": ship.ship_type,
-            "dim_a": ship.dim_a,
-            "dim_b": ship.dim_b
-        }
-        result.append(ship_json)
+    result = json.dumps([{"imo": ship.imo, "ship_type": ship.ship_type, "dim_a": ship.dim_a, "dim_b": ship.dim_b} for ship in ships])
 
     # Commit the transaction and close the session
     session.commit()
     session.close()
     return result
+
+def get_ship_by_imo(imo):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    ship = session.query(Ship).filter_by(imo = imo).first()
+    return json.dumps({
+        "imo": ship.imo,
+        "ship_type": ship.ship_type,
+        "dim_a": ship.dim_a,
+        "dim_b": ship.dim_b
+    })
 
 def get_all_ports():
     Session = sessionmaker(bind=engine)
     session = Session()
     ports = session.query(Port).all()
-    result = []
-
-    # Print the retrieved data
-    for port in ports:
-        port_json = {
-            "port_code": port.port_code,
-            "lat": port.lat,
-            "lon": port.lon,
-            "port_name": port.port_name
-        }
-        result.append(port_json)
-
+    result = json.dumps([{"port_code": port.port_code, "lat": port.lat, "lon": port.lon, "port_name": port.port_name} for port in ports])
     # Commit the transaction and close the session
     session.commit()
     session.close()
     return result
 
-get_all_ships()
+print(get_ship_by_imo(0))
+print(get_all_ports())
+print(get_all_ships())

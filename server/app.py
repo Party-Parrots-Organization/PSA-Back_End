@@ -19,6 +19,7 @@ def predict_eta():
     json_data = request.get_json()
 
     # Extract relevant features
+    ship_imo = json_data["imo"]
     accum_distance = json_data["accum_distance"]
     efficiency = json_data["efficiency"]
     geohash = json_data["geohash"]
