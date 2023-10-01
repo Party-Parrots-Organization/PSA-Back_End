@@ -9,6 +9,17 @@ import ship_client
 import port_client
 import ship_port_efficiency_client
 import helper_functions
+import port_distance_client
+from datetime import datetime, timedelta
+
+def calculate_final_datetime(initial_datetime, days):
+    # Parse the initial datetime string to a datetime object
+    initial_datetime = datetime.strptime(initial_datetime, "%Y-%m-%d %H:%M:%S")
+
+    hours = days * 24
+    # Calculate the final datetime by adding the specified number of hours
+    final_datetime = initial_datetime + timedelta(hours=hours)
+    return final_datetime
 
 print("scikit-learn version:", sklearn.__version__)
 
@@ -16,44 +27,21 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/api/v1/eta', methods=['POST'])
-def predict_eta():
-    # Get the JSON data from the request
-    json_data = request.get_json()
-
-    # Extract relevant features
-    # array of ports, ship, departure date
-    ship_imo = json_data["imo"]
-    port_list = json_data["port_list"]
-    # departure_date = json_data["departure_date"]
-
+def get_eta_between_ports(origin_port_name, destination_port_name, ship_imo):
     # Get ship details
     ship = json.loads(ship_client.get_ship_by_imo(ship_imo))
     ship_type = ship["ship_type"]
     dim_A = ship["dim_a"]
     dim_B = ship["dim_b"]
 
-    # Calculate the total distance travelled by the ship
-    # accum_distance = json_data["accum_distance"] # needs to be calculated from database entries
-    accum_distance = helper_functions.calculate_accumulated_distance(json_data["port_list"])
+    # Get miscellaneous details
+    port_pair = sorted([origin_port_name, destination_port_name])
+    accum_distance = port_distance_client.get_route_distance(port_pair[0], port_pair[1])
+    efficiency = ship_port_efficiency_client.get_efficiency(ship_imo, origin_port_name)
+    origin_port = port_client.get_port_code(origin_port_name)
+    destination_port = port_client.get_port_code(destination_port_name)
+    geohash = port_client.get_port_geohash(origin_port_name)
 
-    # Get the efficiency of the ship coming from the incoming port
-    # efficiency = json_data["efficiency"] # taken from the database
-    port_list = json_data["port_list"]
-    port_list_length = len(port_list)
-    efficiency = ship_port_efficiency_client.get_efficiency(ship_imo, port_list[port_list_length-2])
-
-    # Get the origin and destination ports
-    # destination_port = json_data["destination_port"] # taken from a list of ports
-    # origin_port = json_data["origin_port"] # taken from a list of ports
-    origin_port = port_client.get_port_code(port_list[0])
-    destination_port = port_client.get_port_code(port_list[port_list_length-1])
-
-    # Get the geohash of the origin port
-    # geohash = json_data["geohash"] # this is the origin port's coordinates
-    geohash = port_client.get_port_geohash(port_list[0])
-
-    # Create a dictionary from the extracted values
     data = {
         "accum_distance": [accum_distance],
         "efficiency": [efficiency],
@@ -75,12 +63,32 @@ def predict_eta():
     saved_model = joblib.load("./best_model.joblib")
 
     # Make predictions using the saved model
-    result = saved_model.predict(input_data)
+    result = saved_model.predict(input_data)[0]
+    return result
 
-    # Convert NumPy array to a JSON-serializable format
-    result_json = json.dumps(result.tolist())
+@app.route('/api/v1/eta', methods=['POST'])
+def predict_eta():
+    # Get the JSON data from the request
+    json_data = request.get_json()
 
-    return jsonify(result_json)
+    # Extract relevant features
+    # array of ports, ship, departure date
+    ship_imo = json_data["imo"]
+    port_list = json_data["port_list"]
+    current_datetime = "2023-10-01 14:30:00"  # Initial datetime in the format YYYY-MM-DD HH:MM:SS
+
+    # Store the result
+    segmented_etas = []
+    total_eta = 0
+
+    # Sum up the ETAs
+    for i in range(0,len(port_list)-1):
+        segment_eta = get_eta_between_ports(port_list[i], port_list[i+1], ship_imo)
+        segment_eta_datetime = calculate_final_datetime(current_datetime, segment_eta)
+        segmented_etas.append(segment_eta_datetime)
+        total_eta += segment_eta
+        current_datetime = segment_eta_datetime.strftime('%Y-%m-%d %H:%M:%S')
+    return segmented_etas
 
 @app.route('/api/v1/ships', methods=['GET'])
 def get_all_ships():
