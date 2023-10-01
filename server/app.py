@@ -12,11 +12,11 @@ import helper_functions
 import port_distance_client
 from datetime import datetime, timedelta
 from flask_cors import CORS
+import weather_client
 
 def calculate_final_datetime(initial_datetime, days):
     # Parse the initial datetime string to a datetime object
     initial_datetime = datetime.strptime(initial_datetime, "%Y-%m-%d %H:%M:%S")
-
     hours = days * 24
     # Calculate the final datetime by adding the specified number of hours
     final_datetime = initial_datetime + timedelta(hours=hours)
@@ -85,11 +85,35 @@ def predict_eta():
 
     # Sum up the ETAs
     for i in range(0,len(port_list)-1):
+        # Predict the ETA without considering weather first
         segment_eta = get_eta_between_ports(port_list[i], port_list[i+1], ship_imo)
         segment_eta_datetime = calculate_final_datetime(current_datetime, segment_eta)
-        segmented_etas.append(segment_eta_datetime)
+
+        # Get coordinates of destination
+        dest_lat, dest_lon = port_client.get_port_coordinates(port_list[i+1])
+
+        # Get the weather at the destination
+        print("IMPORTANT")
+        # print(segment_eta_datetime.strftime("%Y-%m-%d %H:%M:%S"))
+        # weather_result = weather_client.get_weather("2023-10-01 14:30:00", 30.0, 122.0)
+        weather_result = weather_client.get_weather(segment_eta_datetime.strftime("%Y-%m-%d %H:%M:%S"), dest_lat, dest_lon)
+        print("COORDS", dest_lat, dest_lon)
+        print(weather_result)
+
+        # Get the delay
+        delay = weather_result["weatherDelay"] / 24
+
+        # Add the delay to the eta
+        segment_eta_datetime = calculate_final_datetime(segment_eta_datetime.strftime("%Y-%m-%d %H:%M:%S"), delay).strftime("%Y-%m-%d %H:%M:%S")
+
+        # Add the final result
+        segmented_etas.append({
+            "eta": segment_eta_datetime,
+            "estimated_delay": delay,
+            "weather": weather_result
+        })
         total_eta += segment_eta
-        current_datetime = segment_eta_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        current_datetime = segment_eta_datetime
     return segmented_etas
 
 @app.route('/api/v1/ships', methods=['GET'])

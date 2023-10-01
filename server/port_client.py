@@ -45,4 +45,12 @@ def get_port_geohash(port_name):
     session.close()
     return result
 
-print(get_all_ports())
+def get_port_coordinates(port_name):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    result = session.query(Port).filter_by(port_name=port_name).first()
+    # Close the session
+    session.close()
+    return result.lat, result.lon
+
+# print(get_all_ports())
